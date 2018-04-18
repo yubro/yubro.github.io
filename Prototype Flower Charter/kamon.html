@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<!-- Load the Paper.js library -->
+<script type="text/javascript" src="node_modules/paper/dist/paper-full.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript" src="data.js"></script>
+<!-- Define inlined JavaScript -->
+<script type="text/javascript">
+
+var dataRef = data;
+console.log(dataRef);
+
+function generateKamon(doScale,dataR){
+        var mainCircle = new paper.Path.Circle(new paper.Point(360,360),350);
+        
+        var subCircles =  new Array(5);
+        var subSymbols = new Array(5)
+
+        var subGroups = new Array(5);
+       
+         subCircles[0] = new paper.Path.Circle(new paper.Point(235,190),120);
+         subCircles[0].fillColor ='red';
+         /*subSymbols[0] = new paper.Path.Circle(subCircles[0].position,80);
+         subSymbols[0].fillColor = 'orange';
+         subGroups[0] = new paper.Group([subCircles[0],subSymbols[0]]);*/
+         subCircles[0].scale(dataR.solar/100);
+
+         subCircles[1] = new paper.Path.Circle(new paper.Point(485,190),120);
+         subCircles[1].fillColor ='lightblue';
+         subCircles[1].scale(dataR.hydro/100);
+        /*subSymbols[1] = new paper.Raster('drop',subCircles[1].position);
+         subSymbols[1].scale(1.3);
+         subGroups[1] = new paper.Group([subCircles[1],subSymbols[1]]);*/
+         
+         subCircles[2] = new paper.Path.Circle(new paper.Point(360,570),120);
+         subCircles[2].fillColor ='grey';
+         subCircles[2].scale(dataR.fossil/100);
+         /*subSymbols[2] = new paper.Raster('coal',subCircles[2].position);
+         subSymbols[2].scale(0.25);
+         subGroups[2] = new paper.Group([subCircles[2],subSymbols[2]]);*/
+
+         subCircles[3] = new paper.Path.Circle(new paper.Point(160,425),120);
+         subCircles[3].fillColor = 'lightgreen';
+         subCircles[3].scale(dataR.bio/100);
+         /*subSymbols[3] = new paper.Raster('leaf',subCircles[3].position);
+         subSymbols[3].scale(1.0);
+         subSymbols[3].rotate(45);
+         subSymbols[3].position.x -= 8;
+         subGroups[3] = new paper.Group([subCircles[3],subSymbols[3]]);*/
+
+         subCircles[4] = new paper.Path.Circle(new paper.Point(560,425),120);
+         subCircles[4].fillColor = '#B232B2';
+         subCircles[4].scale(dataR.wind/100);
+         /*subSymbols[4] = new paper.Raster('wind',subCircles[4].position);
+         subSymbols[4].scale(0.6);
+         subGroups[4] = new paper.Group([subCircles[4],subSymbols[4]]);*/
+
+        //mainCircle.strokeColor = 'black';
+        //mainCircle.strokeWidth = 4;
+
+        var boundary = new paper.Path.Rectangle(mainCircle.bounds);
+
+        boundary.bounds.height += 70;
+        boundary.bounds.width += 70;
+
+        //boundary.strokeColor = "black";
+
+        var kamon = new paper.Group([boundary,mainCircle]);
+
+        for(var i=0;i<5;i++){
+            kamon.addChild(subCircles[i]);
+            //subCircles[i].strokeColor = 'black';
+            //subCircles[i].strokeWidth = 2;
+            //kamon.addChild(subGroups[i])
+        }
+
+        
+        if(doScale){
+            kamon.scale(0.13);
+            kamon.position.x = 50;
+            kamon.position.y = 50;
+        }
+
+        
+    
+        return kamon;
+
+        }
+
+    function sortAscending(type){
+    dataRef.sort(function(a,b){
+        return a[type] - b[type];
+    });
+    //console.log(flowers);
+    }
+
+    function sortDescending(type){
+        dataRef.sort(function(a,b){
+        return a[type] - b[type];
+    });
+        dataRef.reverse();
+    }
+
+window.onload = function() {
+
+		// Get a reference to the canvas object
+		var canvas = document.getElementById('myCanvas');
+        // Create an empty project and a view for the canvas:
+        
+        paper.setup(canvas);
+
+        sortDescending('hydro');
+
+        var doIt = true;
+        for (var i = 0; i < 10; i++) {
+                var kamCol = generateKamon(doIt,dataRef[i*20]);
+                kamCol.position.y += i * kamCol.bounds.height;
+                for(var j = 1; j < 20; j++){
+                    var kamRow = generateKamon(doIt,dataRef[(i*20)+j]);
+                    kamRow.position.y = kamCol.position.y;
+                    kamRow.position.x += j * kamRow.bounds.width;
+                }
+        }
+
+
+        paper.view.draw();
+}
+</script>
+</head>
+<body>
+    <canvas id="myCanvas" resize width=2400 height=1100></canvas>
+    <!--<button id="solarSorter" onclick="sortAscending('solar')">Sort By Solar Ascend</button>-->
+    <p>
+        <img class="hidden" id="leaf" src="resizedLeaf.png">
+        <img class="hidden" id="drop" src="resizedDrop.png">
+        <img class="hidden" id="wind" src="wind2.png">
+        <img class="hidden" id="coal" src="coal.png">
+    </p>
+</body>
+</html>

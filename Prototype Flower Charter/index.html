@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/ >
+        <title>FlowerChartPrototypeAlpha</title>
+        
+        <style>
+            #container{
+                width:400px;
+                height:380px;
+                margin:20px;
+                border:10px solid #663300;
+                position:relative;
+                background-color:#87CEFA
+            }
+            #green{
+                width:150px;
+                height:150px;
+                /*background-color:#00FF00;*/
+                position:absolute;
+                top:80px;
+                left:60px;
+                z-index:30;
+                content:url("flower.png");
+            }
+            #red{
+                width:150px;
+                height:150px;
+                /*background-color: #FF0000;*/
+                position:absolute;
+                top:200px;
+                left:60px;
+                z-index:20;
+                content:url("flowerpot.png");
+            }
+            #blue{
+                width:150px;
+                height:150px;
+                /*background-color: #0000FF;*/
+                position:absolute;
+                top:15px;
+                left:230px;
+                z-index:10;
+                content:url("bee.png");
+            }
+            
+        </style>
+	</head>
+	<body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script>
+        function containerIncrease(value){
+            num = $('#container').width()*parseFloat(value);
+            num2 = $('#container').height()*parseFloat(value);
+            document.getElementById('container').style.width = num +'px';
+            document.getElementById('container').style.height = num2+'px';
+        }
+        function containerDecrease(value){
+            num = $('#container').width()/parseFloat(value);
+            num2 = $('#container').height()/parseFloat(value);
+            document.getElementById('container').style.width = num +'px';
+            document.getElementById('container').style.height = num2+'px';
+        }
+        function increaseSize(id,value){
+            num = $('#'+id).width()*parseFloat(value);
+            num2 = $('#'+id).height()*parseFloat(value);
+            document.getElementById(id).style.width = num +'px';
+            document.getElementById(id).style.height = num2+'px';
+            containerIncrease(value);
+        }
+        function decreaseSize(id,value){
+            //numV = parseInt(window.getComputedStyle(document.getElementById(id)).width);
+            num = $('#'+id).width()/parseFloat(value);
+            num2 = $('#'+id).height()/parseFloat(value);
+            document.getElementById(id).style.width = num +'px';
+            document.getElementById(id).style.height = num2+'px';
+            containerDecrease(value);
+            console.log("id:" + id + ":" + numV);
+            console.log(num  + ' ' + num2);
+        }
+    </script>
+    <div id ="top">
+        <div id="container">
+            <div id="red">
+                <!--<img id = "pot" src="flowerpot.png" width=150px top="250px"></img>-->
+            </div>
+            <div id="blue">
+                <img src=""></img>
+            </div>
+            <div id="green">
+                <img src=""></img>
+            </div>
+        </div>
+    </div>
+
+   <!-- <div id ="bot">
+        <div id="container2">
+            <div id="red"></div>
+            <div id="blue"></div>
+            <div id="green"></div>
+        </div>
+    </div>-->
+        <button type = "button" onclick="increaseSize('red','1.1')">Pot Increase Size!</button>
+        <button type = "button" onclick="increaseSize('blue','1.1')">Bee Increase Size!</button>
+        <button type = "button" onclick="decreaseSize('red','1.1')">Pot Decrease Size!</button>
+        <button type = "button" onclick="decreaseSize('blue','1.1')">Bee Decrease Size!</button>
+	</body>
+</html>

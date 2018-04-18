@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<style>
+
+html,
+body {
+    height: 100%;
+    z-index: -1;
+}
+
+    #sliders{
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 35px;
+        width: 800px; 
+	 	position: sticky; 
+	 	left: 2500px; 
+        height: 500px;
+	 	margin-top: 10px;
+        float: center;
+    }
+
+    #titles{
+        font-size:40px;
+        color: green;
+    }
+
+    input.slider{
+        width: 200px;
+    }
+    #images{
+        position: relative;
+        opacity: 0;
+    }
+
+    #legend{
+        top: 180px;
+        width:auto;
+        height:365px;
+    }
+    #myCanvas{
+        display: inline-block;
+        left: 0px; 
+	 	top: 10px;
+        margin:0px;
+        position: absolute;
+        resize: true;
+    }
+
+    #Options{
+        top:600px;
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 40px;
+        left: 1820px; 
+        position:relative;
+        height: auto;
+    }
+
+    input[type='radio'] { 
+        transform: scale(2); 
+        }
+
+        input[type='range'] { 
+        transform: scale(2); 
+        left:500px;
+        }
+
+
+    button{
+        opacity: 0;
+    }
+
+</style>
+<!-- Load the Paper.js library -->
+<script type="text/javascript" src="node_modules/paper/dist/paper-full.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script type="text/javascript" src="flowerChart.js"></script>
+<script src="node_modules/ascii-table/ascii-table.min.js"></script>
+<script type="text/javascript" src="data.js"></script>
+<!-- Define inlined JavaScript -->
+<script type="text/javascript">
+    // Only executed our code once the DOM is ready.
+    var flowers= data;
+
+    var greyColors = ['#767676','#6C6C6C','#626262','#585858','#4E4E4E', '#444444','#3A3A3A','#303030'];
+
+    for(var k=0;k<200;k++){
+        flowers[k].scenario = k+1;
+    }
+
+    for(var m=0;m<200;m++){
+        flowers[m].shine = (Math.random() * (1-0.25))+ 0.25;
+    }
+
+    //console.log(flowers);
+
+    var slideParameters = {
+        solarWeight:1,
+        hydroTight:1,
+        bioWeight:1,
+        windWeight:1,
+        fossilWeight:1,
+    }
+
+function sortAscending(type){
+    flowers.sort(function(a,b){
+        return a[type] - b[type];
+    });
+    //console.log(flowers);
+    }
+
+    function sortDescending(type){
+        flowers.sort(function(a,b){
+        return a[type] - b[type];
+    });
+        flowers.reverse();
+       //console.log(flowers);
+    }
+    
+    //var instances;
+
+    var render = function(){
+
+		// Get a reference to the canvas object
+		var canvas = document.getElementById('myCanvas');
+		// Create an empty project and a view for the canvas:
+        paper.setup(canvas);
+        //instances = new Array(200);
+        addWeights(flowers,slideParameters);
+        //garden = FlowerGenerate(canvas);
+        sortDescending('score');
+        //i=9;
+        //FlowerGenerate(flowers[i*20],i*20)
+        for (var i = 0; i < 10; i++) {
+                var plantCol = FlowerGenerate(flowers[i*20],i*20,i*20, greyColors[i*20%greyColors.length]);
+                plantCol.position.y += i * plantCol.bounds.height;
+                //instances[i*20] = plantCol;
+                for(var j = 1; j < 20; j++){
+                    var plantRow = FlowerGenerate(flowers[(i*20)+j],(i*20)+j,(i*20)+j, greyColors[((i*20)+j)%greyColors.length]);
+                    plantRow.position.y = plantCol.position.y;
+                    plantRow.position.x += j * plantRow.bounds.width;
+                    //instances[(i*20)+j];
+                    //console.log((i*20)+j);
+                }
+            }
+            
+            //instances[0].children[1].position.x += 30;
+            //instances[0].children[1].position.y += 30;
+        /*paper.view.onFrame = function(event) { 
+        if(rotV < 35){
+        combine.rotate(1,rotP);
+        drop.rotate(-1);
+        }
+        rotV++;
+        };*/ 
+
+        /*var stuff = createSlider();
+
+        var stepSize = 1;
+        paper.view.onMouseDrag = function(event){
+            //var hitResult = 
+            console.log(stuff.children[0].hitTest(event.point, {stroke: true, tolerance: 0}));
+            /*if (hitResult) {
+                stepSize = rescale(event.point.x,300,500,1,20);
+                stuff.children[2].position.x = event.point.x;
+                }*/
+        //};
+       // paper.view.onFrame = onFrame(event);
+
+                
+        paper.view.draw();
+    }
+
+    var reRender = function(){
+
+        var canvas = document.getElementById('myCanvas');
+        
+        paper.setup(canvas);
+
+        addWeights(flowers,slideParameters);
+       
+        sortDescending('score');
+        
+        for (var i = 0; i < 10; i++) {
+                var plantCol = FlowerGenerate(flowers[i*20],i*20,i*20);
+                plantCol.position.y += i * plantCol.bounds.height;
+                for(var j = 1; j < 20; j++){
+                    var plantRow = FlowerGenerate(flowers[(i*20)+j],(i*20)+j, (i*20)+j);
+                    plantRow.position.y = plantCol.position.y;
+                    plantRow.position.x += j * plantRow.bounds.width;
+                }
+            }   
+        paper.view.draw();
+    }
+
+    var spiralRender = function(){
+        var canvas = document.getElementById('myCanvas');
+        
+        paper.setup(canvas);
+
+        addWeights(flowers,slideParameters);
+       
+        sortDescending('score');
+        
+        for (var i = 0; i < 10; i++) {
+                var plantCol = FlowerGenerate(flowers[diffSpiral[i*20]],diffSpiral[i*20],i*20);
+                plantCol.position.y += i * plantCol.bounds.height;
+                for(var j = 1; j < 20; j++){
+                    var plantRow = FlowerGenerate(flowers[diffSpiral[(i*20)+j]],diffSpiral[(i*20)+j],(i*20)+j);
+                    plantRow.position.y = plantCol.position.y;
+                    plantRow.position.x += j * plantRow.bounds.width;
+                }
+            }   
+        paper.view.draw();
+    }
+
+    /*var aniRender = function(){
+
+		var canvas = document.getElementById('myCanvas');
+
+        //var newInstances = new Array(200);
+        addWeights(flowers,slideParameters);
+       
+        sortDescending('score');
+        
+        /*for (var i = 0; i < 10; i++) {
+            var plantCol = FlowerGenerate(flowers[i*20],i*20);
+            plantCol.position.y += i * plantCol.bounds.height;
+            newInstances[i*20] = plantCol;
+            for(var j = 1; j < 20; j++){
+                var plantRow = FlowerGenerate(flowers[(i*20)+j],(i*20)+j);
+                plantRow.position.y = plantCol.position.y;
+                plantRow.position.x += j * plantRow.bounds.width;
+                newInstances[(i*20)+j] = plantRow;
+            }
+        }*/ 
+ /*
+        for (var i = 0; i < 10; i++) {
+            var plantCol = FlowerGenerate(flowers[i*20],i*20);
+            plantCol.position.y += i * plantCol.bounds.height;
+            newInstances[i*20] = plantCol;
+            for(var j = 1; j < 20; j++){
+                var plantRow = FlowerGenerate(flowers[(i*20)+j],(i*20)+j);
+                plantRow.position.y = plantCol.position.y;
+                plantRow.position.x += j * plantRow.bounds.width;
+                newInstances[(i*20)+j] = plantRow;
+            }
+        } 
+
+        paper.view.onFrame = function(event) {
+        for (var i = 0; i < newInstances.length; i++) {
+            if(instances[i].position.x != newInstances[i].position.x){
+                if(instances[i].position.x < newInstances[i].position.x){
+                    instances.position.x +=1;
+                }
+                if(instances[i].position.x > newInstances[i].position.x){
+                    instances.position.x -=1;
+                }
+            }
+            if(instances[i].position.y != newInstances[i].position.y){
+                if(instances[i].position.y < newInstances[i].position.y){
+                    instances.position.y +=1;
+                }
+                if(instances[i].position.y > newInstances[i].position.y){
+                    instances.position.y -=1;
+                }
+            }
+        } 
+        };
+
+        paper.view.draw();
+
+        instances = newInstances;
+    }*/
+
+
+	window.onload = render;
+
+
+</script>
+</head>
+<body>
+
+
+    <div id = "sliders">
+    
+    <table style="width:100%">
+
+    <span id="titles">Garden Weights</span></br>
+
+    <tr>
+    <div id="solarWeight">
+            <td>
+            <span>Solar Weight:<span>
+            </td>
+            <td>
+            <span id="sWeight"></span>
+            </td>        
+            <td>
+            <span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span><input type="range" min="0.00" max="1.00" value="1.00" class="slider" step="0.01"id="solarRange">
+            </td>
+            <!--<td>
+            <button type="button" id="solarButton" style="margin:10px">Solar Dominate</button>
+            </td>-->
+    </div>
+    </tr>
+
+    <tr>
+        <td colspan="3"></td>
+        <td colspan="3"></td>
+        <td colspan="3"></td>
+    </tr>
+    <tr>
+            <div id="hydroWeight">
+                    <td>
+                    <span>Hydro Weight:<span>
+                    </td>
+                    <td>
+                    <span id="hWeight"></span>
+                    </td>        
+                    <td>
+                    <span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span><input type="range" min="0.00" max="1.00" value="1.00" class="slider" step="0.01"id="hydroRange">
+                    </td>
+                    <!--<td>
+                    <button type="button" id="hydroButton" style="margin:10px">Hydro Dominate</button>
+                    </td>-->
+    </div>
+    </tr>
+
+    <p>
+            
+    </p>
+
+    <tr>
+            <div id="bioWeight">
+                    <td>
+                    <span>Bio Weight:<span>
+                    </td>
+                    <td>
+                    <span id="bWeight"></span>
+                    </td>        
+                    <td>
+                    <span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span><input type="range" min="0.00" max="1.00" value="1.00" class="slider" step="0.01"id="bioRange">
+                    </td>
+                    <!--<td>
+                    <button type="button" id="bioButton" style="margin:10px">Bio Dominate</button>
+                    </td>-->
+            </div>
+            </tr> 
+
+    <p>
+            
+    </p>
+
+    <tr>
+            <div id="windWeight">
+                    <td>
+                    <span>Wind Weight:<span>
+                    </td>
+                    <td>
+                    <span id="wWeight"></span>
+                    </td>        
+                    <td>
+                    <span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span><input type="range" min="0.00" max="1.00" value="1.00" class="slider" step="0.01"id="windRange">
+                    </td>
+                    <!--<td>
+                    <button type="button" id="windButton" style="margin:10px">Wind Dominate</button>
+                    </td>-->
+            </div>
+            </tr> 
+    <p>
+            
+    </p>
+
+    <tr>
+            <div id="fossilWeight">
+                    <td>
+                    <span>Fossil Weight:<span>
+                    </td>
+                    <td>
+                    <span id="fWeight"></span>
+                    </td>        
+                    <td>
+                    <span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span><input type="range" min="0.00" max="1.00" value="1.00" class="slider" step="0.01"id="fossilRange">
+                    </td>
+                    <!--<td>
+                    <button type="button" id="fossilButton" style="margin:10px">Fossil Dominate</button>
+                    </td>-->
+            </div>
+            </tr> 
+
+    </table>
+    <p></p>
+
+    <span id="titles">Garden Organization</span></br>
+    <p></p>
+      <input type="radio" name="type" id="topToBottom" value="reRender" checked> Top to Bottom<br>
+      <input type="radio" name="type" id"radial" value="spiralRender"> Radial<br>
+
+    <p></p>
+    <p></p>
+
+    <img id ="legend" src="Legendo.png"><br>
+
+    <div id = "images">
+            <img class="hidden" id="leaf" src="resizedLeaf4.png">
+            <img class="hidden" id="drop" src="resizedDrop.png">
+            <img class="hidden" id="ground" src="resizedGround.png">
+        </div>
+    
+    </div>
+
+   <!-- <div id= "Options">
+            <img id ="legend" src="Legendo.png"><br>
+    </div>-->
+
+    <canvas id="myCanvas" width=2000px height=1800px resize></canvas>
+
+
+    
+    <script>
+    var renderer = reRender;
+    var topRadio = document.getElementById("topToBottom");
+    var radRadio = document.getElementById("radial");
+
+    $('input[type="radio"]').on("click", function() {
+      var typer = $( "input:checked" ).val();
+      if(typer == "reRender"){
+          renderer = reRender;
+      }else{
+          renderer = spiralRender;
+      }
+
+      renderer();
+    });
+
+
+    var solarSlider = document.getElementById("solarRange");
+    var solarOutput = document.getElementById("sWeight");
+    var solButton = document.getElementById("solarButton");
+    solarOutput.innerHTML = parseFloat(solarSlider.value).toFixed(2);
+    
+
+    $("#solarRange").on('mousedown', function(event) {
+      solarSlider.oninput = function() {
+      solarOutput.innerHTML = parseFloat(this.value).toFixed(2);
+        }
+    });
+    $("#solarRange").on('mouseup', function(event) {
+        slideParameters.solarWeight = parseFloat(this.value).toFixed(2);
+        renderer();
+    });
+
+    var hydroSlider = document.getElementById("hydroRange");
+    var hydroOutput = document.getElementById("hWeight");
+    hydroOutput.innerHTML = parseFloat(hydroSlider.value).toFixed(2);
+    
+    $("#hydroRange").on('mousedown', function(event) {
+      hydroSlider.oninput = function() {
+      hydroOutput.innerHTML = parseFloat(this.value).toFixed(2);
+        }
+    });
+    $("#hydroRange").on('mouseup', function(event) {
+        slideParameters.hydroTight = parseFloat(this.value).toFixed(2);
+        renderer();
+    });
+
+    var bioSlider = document.getElementById("bioRange");
+    var bioOutput = document.getElementById("bWeight");
+    bioOutput.innerHTML = parseFloat(bioSlider.value).toFixed(2);
+    
+    $("#bioRange").on('mousedown', function(event) {
+      bioSlider.oninput = function() {
+      bioOutput.innerHTML = parseFloat(this.value).toFixed(2);
+        }
+    });
+    $("#bioRange").on('mouseup', function(event) {
+        slideParameters.bioWeight = parseFloat(this.value).toFixed(2);
+        renderer();
+    });
+
+    var windSlider = document.getElementById("windRange");
+    var windOutput = document.getElementById("wWeight");
+    windOutput.innerHTML = parseFloat(windSlider.value).toFixed(2);
+    
+    $("#windRange").on('mousedown', function(event) {
+      windSlider.oninput = function() {
+      windOutput.innerHTML = parseFloat(this.value).toFixed(2);
+        }
+    });
+    $("#windRange").on('mouseup', function(event) {
+        slideParameters.windWeight = parseFloat(this.value).toFixed(2);
+        renderer();
+    });
+
+    var fossilSlider = document.getElementById("fossilRange");
+    var fossilOutput = document.getElementById("fWeight");
+    fossilOutput.innerHTML = parseFloat(fossilSlider.value).toFixed(2);
+    
+    $("#fossilRange").on('mousedown', function(event) {
+      fossilSlider.oninput = function() {
+      fossilOutput.innerHTML = parseFloat(this.value).toFixed(2);
+        }
+    });
+    $("#fossilRange").on('mouseup', function(event) {
+        slideParameters.fossilWeight = parseFloat(this.value).toFixed(2);
+        renderer();
+    });
+
+    $(document).ready(function(){
+    $("#solButton").on("click",function(){
+        solarOutput.innerHTML = parseFloat("1.00").toFixed(2);
+        slideParameters.solarWeight = parseFloat("1.00").toFixed(2);
+        console.log(slideParameters.solarWeight);
+    })});
+
+    </script>
+
+
+</body>
+</html>

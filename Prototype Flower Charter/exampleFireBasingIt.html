@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<!-- saved from url=(0072)file:///Users/yu_bro/Documents/Prototype%20Flower%20Charter/example.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<style>
+
+/* Scale canvas with resize attribute to full size */
+
+    #sliders{
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 35px;
+        width: 800px; 
+	 	position: sticky; 
+	 	left: 1820px; 
+        height: 500px;
+	 	margin-top: 10px;
+        float: center;
+    }
+
+    #titles{
+        font-size:40px;
+        color: green;
+    }
+
+    input.slider{
+        width: 200px;
+    }
+    #images{
+        position: relative;
+        opacity: 0;
+    }
+
+    #legend{
+        top: 180px;
+        width:auto;
+        height:365px;
+    }
+    #myCanvas{
+        display: inline-block;
+        left: 0px; 
+	 	top: 10px;
+        margin:0px;
+        padding:0px;
+        position: absolute;;
+    }
+
+    #Options{
+        top:600px;
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 40px;
+        left: 1820px; 
+        position:relative;
+        height: auto;
+    }
+
+    input[type='radio'] { 
+        transform: scale(2); 
+        }
+
+        input[type='range'] { 
+        transform: scale(2); 
+        left:500px;
+        }
+
+
+    button{
+        opacity: 0;
+    }
+
+</style>
+<!-- Load the Paper.js library -->
+<script src="https://www.gstatic.com/firebasejs/4.5.2/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyCz1QCypERKfLxB8yHvsr7A3VR2HrVWBWU",
+    authDomain: "haven-hawaii.firebaseapp.com",
+    databaseURL: "https://haven-hawaii.firebaseio.com",
+    projectId: "haven-hawaii",
+    storageBucket: "haven-hawaii.appspot.com",
+    messagingSenderId: "138707248833"
+  };
+  firebase.initializeApp(config);
+</script>
+<script type="text/javascript" src="./example_files/paper-full.js"></script>
+<script src="./example_files/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script type="text/javascript" src="./example_files/flowerChart.js"></script>
+<script type="text/javascript" src="./example_files/data.js"></script>
+<script type="text/javascript" src="./firebaseStuff.js"></script>
+
+<!-- Define inlined JavaScript -->
+<script type="text/javascript">
+    // Only executed our code once the DOM is ready.
+    var gcTotal = 3;
+    var gcCount = 0;
+
+    var list = Init();
+    //data;
+
+    var flowers = new Array();
+    var flowers2 = new Array();
+    var flowers3 = new Array();
+
+    /*for(var k=0;k<200;k++){
+        flowers[k].scenario = k+1;
+    }*/
+
+    var slideParameters = {
+        solarWeight:1,
+        hydroTight:1,
+        bioWeight:1,
+        windWeight:1,
+        fossilWeight:1,
+    }
+
+function gardenizer() {
+
+    console.log("Inside gardenizer");
+
+   for(var i = 2016; i <= 2045; i++){
+    if(list['e3'][i].hasOwnProperty('Offshore Wind')){
+        flowers.push({
+        solar: list['e3'][i]['Solar'],
+        bio: list['e3'][i]['Biofuel'] + list['e3'][i]['Biomass'],
+        wind: list['e3'][i]['Wind'] + list['e3'][i]['Offshore Wind'],
+        hydro: 60,
+        fossil: list['e3'][i]['Fossil']
+        });
+    }
+    else{
+        flowers.push({
+        solar: list['e3'][i]['Solar'],
+        bio: list['e3'][i]['Biofuel'] + list['e3'][i]['Biomass'],
+        wind: list['e3'][i]['Wind'],
+        hydro: 60,
+        fossil: list['e3'][i]['Fossil']
+        });
+    }
+
+    flowers2.push({
+        solar: list['genmod'][i]['Solar'],
+        bio: list['genmod'][i]['Biofuel'] + list['genmod'][i]['Biomass'],
+        wind: list['genmod'][i]['Wind'] + list['genmod'][i]['Offshore Wind'],
+        hydro: 60,
+        fossil: list['genmod'][i]['Fossil']
+        });
+
+    if(list['postapril'][i].hasOwnProperty('Offshore Wind')){
+        flowers3.push({
+        solar: list['postapril'][i]['Solar'],
+        bio: list['postapril'][i]['Biofuel'] + list['postapril'][i]['Biomass'],
+        wind: list['postapril'][i]['Wind'] + list['postapril'][i]['Offshore Wind'],
+        hydro: 60,
+        fossil: list['postapril'][i]['Fossil']
+        });
+        }
+        else{
+        flowers3.push({
+        solar: list['postapril'][i]['Solar'],
+        bio: list['postapril'][i]['Biofuel'] + list['postapril'][i]['Biomass'],
+        wind: list['postapril'][i]['Wind'],
+        hydro: 60,
+        fossil: list['postapril'][i]['Fossil']
+        });
+        }
+    }
+
+    for(var m=0;m<flowers.length;m++){
+        flowers[m].shine = Math.random();
+        flowers2[m].shine = Math.random();
+        flowers3[m].shine = Math.random();
+    }
+   
+    render();
+}
+
+function sortAscending(type){
+    flowers.sort(function(a,b){
+        return a[type] - b[type];
+    });
+    //console.log(flowers);
+    }
+
+    function sortDescending(type){
+        flowers.sort(function(a,b){
+        return a[type] - b[type];
+    });
+        flowers.reverse();
+       //console.log(flowers);
+    }
+    
+    //var instances;
+
+    var render = function(){
+ 
+		// Get a reference to the canvas object
+        var canvas = document.getElementById('myCanvas');
+        
+		// Create an empty project and a view for the canvas:
+        paper.setup(canvas);
+
+        for (var i = 0; i < 3; i++) {
+                var plantCol = FlowerGenerate(flowers[i*10],i*10,i*10, 2016 + i*10, 'E3');
+                plantCol.position.y += i * plantCol.bounds.height;
+                for(var j = 1; j < 10; j++){
+                    var plantRow = FlowerGenerate(flowers[(i*10)+j],(i*10)+j,(i*10)+j, 2016 + (i*10)+j, 'E3');
+                    plantRow.position.y = plantCol.position.y;
+                    plantRow.position.x += j * plantRow.bounds.width;
+                }
+            }
+        
+        for (var i = 0; i < 3; i++) {
+                var plantCol = FlowerGenerate(flowers2[i*10],i*10,i*10, 2016 + i*10, 'E3GenMod');
+                plantCol.position.y += (i+3) * plantCol.bounds.height;
+                for(var j = 1; j < 10; j++){
+                    var plantRow = FlowerGenerate(flowers2[(i*10)+j],(i*10)+j,(i*10)+j, 2016 + (i*10)+j, 'E3GenMod');
+                    plantRow.position.y = plantCol.position.y + 3;
+                    plantRow.position.x += j * plantRow.bounds.width;
+                }
+        }
+        
+        for (var i = 0; i < 3; i++) {
+                var plantCol = FlowerGenerate(flowers3[i*10],i*10,i*10, 2016 + i*10, 'Post April');
+                plantCol.position.y += (i+6) * plantCol.bounds.height;
+                for(var j = 1; j < 10; j++){
+                    var plantRow = FlowerGenerate(flowers3[(i*10)+j],(i*10)+j,(i*10)+j, 2016 + (i*10)+j, 'Post April');
+                    plantRow.position.y = plantCol.position.y + 6;
+                    plantRow.position.x += j * plantRow.bounds.width;
+                }
+            }
+                
+        paper.view.draw();
+    }
+
+    var reRender = function(){
+
+        var canvas = document.getElementById('myCanvas');
+        var context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        
+        paper.setup(canvas);
+
+        addWeights(flowers,slideParameters);
+       
+        sortDescending('score');
+        
+        for (var i = 0; i < 10; i++) {
+                var plantCol = FlowerGenerate(flowers[i*20],i*20,i*20);
+                plantCol.position.y += i * plantCol.bounds.height;
+                for(var j = 1; j < 20; j++){
+                    var plantRow = FlowerGenerate(flowers[(i*20)+j],(i*20)+j, (i*20)+j);
+                    plantRow.position.y = plantCol.position.y;
+                    plantRow.position.x += j * plantRow.bounds.width;
+                }
+            }   
+        paper.view.draw();
+    }
+
+    var spiralRender = function(){
+        var canvas = document.getElementById('myCanvas');
+        var context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        
+        paper.setup(canvas);
+
+        addWeights(flowers,slideParameters);
+       
+        sortDescending('score');
+        
+        for (var i = 0; i < 10; i++) {
+                var plantCol = FlowerGenerate(flowers[diffSpiral[i*20]],diffSpiral[i*20],i*20);
+                plantCol.position.y += i * plantCol.bounds.height;
+                for(var j = 1; j < 20; j++){
+                    var plantRow = FlowerGenerate(flowers[diffSpiral[(i*20)+j]],diffSpiral[(i*20)+j],(i*20)+j);
+                    plantRow.position.y = plantCol.position.y;
+                    plantRow.position.x += j * plantRow.bounds.width;
+                }
+            }   
+        paper.view.draw();
+    }
+
+    /*var aniRender = function(){
+
+		var canvas = document.getElementById('myCanvas');
+
+        //var newInstances = new Array(200);
+        addWeights(flowers,slideParameters);
+       
+        sortDescending('score');
+        
+        /*for (var i = 0; i < 10; i++) {
+            var plantCol = FlowerGenerate(flowers[i*20],i*20);
+            plantCol.position.y += i * plantCol.bounds.height;
+            newInstances[i*20] = plantCol;
+            for(var j = 1; j < 20; j++){
+                var plantRow = FlowerGenerate(flowers[(i*20)+j],(i*20)+j);
+                plantRow.position.y = plantCol.position.y;
+                plantRow.position.x += j * plantRow.bounds.width;
+                newInstances[(i*20)+j] = plantRow;
+            }
+        }*/ 
+ /*
+        for (var i = 0; i < 10; i++) {
+            var plantCol = FlowerGenerate(flowers[i*20],i*20);
+            plantCol.position.y += i * plantCol.bounds.height;
+            newInstances[i*20] = plantCol;
+            for(var j = 1; j < 20; j++){
+                var plantRow = FlowerGenerate(flowers[(i*20)+j],(i*20)+j);
+                plantRow.position.y = plantCol.position.y;
+                plantRow.position.x += j * plantRow.bounds.width;
+                newInstances[(i*20)+j] = plantRow;
+            }
+        } 
+
+        paper.view.onFrame = function(event) {
+        for (var i = 0; i < newInstances.length; i++) {
+            if(instances[i].position.x != newInstances[i].position.x){
+                if(instances[i].position.x < newInstances[i].position.x){
+                    instances.position.x +=1;
+                }
+                if(instances[i].position.x > newInstances[i].position.x){
+                    instances.position.x -=1;
+                }
+            }
+            if(instances[i].position.y != newInstances[i].position.y){
+                if(instances[i].position.y < newInstances[i].position.y){
+                    instances.position.y +=1;
+                }
+                if(instances[i].position.y > newInstances[i].position.y){
+                    instances.position.y -=1;
+                }
+            }
+        } 
+        };
+
+        paper.view.draw();
+
+        instances = newInstances;
+    }*/
+
+
+
+</script>
+</head>
+<body>
+
+
+    <div id="sliders">
+    
+    <span id="titles">Garden Weights</span><br><div id="solarWeight">
+            </div><div id="hydroWeight">
+                    </div><p>
+            
+    </p><div id="bioWeight">
+                    </div><p>
+            
+    </p><div id="windWeight">
+                    </div><p>
+            
+    </p><div id="fossilWeight">
+                    </div><table style="width:100%">
+
+    
+
+    <tbody><tr>
+    <td>
+            <span>Solar Weight:<span>
+            </span></span></td>
+            <td>
+            <span id="sWeight">1.00</span>
+            </td>        
+            <td>
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><input type="range" min="0.00" max="1.00" value="1.00" class="slider" step="0.01" id="solarRange">
+            </td>
+            <!--<td>
+            <button type="button" id="solarButton" style="margin:10px">Solar Dominate</button>
+            </td>-->
+    
+    </tr>
+
+    <tr>
+        <td colspan="3"></td>
+        <td colspan="3"></td>
+        <td colspan="3"></td>
+    </tr>
+    <tr>
+            <td>
+                    <span>Hydro Weight:<span>
+                    </span></span></td>
+                    <td>
+                    <span id="hWeight">1.00</span>
+                    </td>        
+                    <td>
+                    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><input type="range" min="0.00" max="1.00" value="1.00" class="slider" step="0.01" id="hydroRange">
+                    </td>
+                    <!--<td>
+                    <button type="button" id="hydroButton" style="margin:10px">Hydro Dominate</button>
+                    </td>-->
+    
+    </tr>
+
+    
+
+    <tr>
+            <td>
+                    <span>Bio Weight:<span>
+                    </span></span></td>
+                    <td>
+                    <span id="bWeight">1.00</span>
+                    </td>        
+                    <td>
+                    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><input type="range" min="0.00" max="1.00" value="1.00" class="slider" step="0.01" id="bioRange">
+                    </td>
+                    <!--<td>
+                    <button type="button" id="bioButton" style="margin:10px">Bio Dominate</button>
+                    </td>-->
+            
+            </tr> 
+
+    
+
+    <tr>
+            <td>
+                    <span>Wind Weight:<span>
+                    </span></span></td>
+                    <td>
+                    <span id="wWeight">1.00</span>
+                    </td>        
+                    <td>
+                    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><input type="range" min="0.00" max="1.00" value="1.00" class="slider" step="0.01" id="windRange">
+                    </td>
+                    <!--<td>
+                    <button type="button" id="windButton" style="margin:10px">Wind Dominate</button>
+                    </td>-->
+            
+            </tr> 
+    
+
+    <tr>
+            <td>
+                    <span>Fossil Weight:<span>
+                    </span></span></td>
+                    <td>
+                    <span id="fWeight">1.00</span>
+                    </td>        
+                    <td>
+                    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><input type="range" min="0.00" max="1.00" value="1.00" class="slider" step="0.01" id="fossilRange">
+                    </td>
+                    <!--<td>
+                    <button type="button" id="fossilButton" style="margin:10px">Fossil Dominate</button>
+                    </td>-->
+            
+            </tr> 
+
+    </tbody></table>
+    <p></p>
+
+    <span id="titles">Garden Organization</span><br>
+    <p></p>
+      <input type="radio" name="type" id="topToBottom" value="reRender" checked=""> Top to Bottom<br>
+      <input type="radio" name="type" id"radial"="" value="spiralRender"> Radial<br>
+
+    <p></p>
+    <p></p>
+
+    <img id="legend" src="./example_files/Legendo.png"><br>
+
+    <div id="images">
+            <img class="hidden" id="leaf" src="./example_files/resizedLeaf4.png">
+            <img class="hidden" id="drop" src="./example_files/resizedDrop.png">
+            <img class="hidden" id="ground" src="./example_files/resizedGround.png">
+        </div>
+    
+    </div>
+
+   <!-- <div id= "Options">
+            <img id ="legend" src="Legendo.png"><br>
+    </div>-->
+
+    <canvas id="myCanvas" resize="" width="1800" height="1200" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></canvas>
+
+    <script>
+    var renderer = reRender;
+    var topRadio = document.getElementById("topToBottom");
+    var radRadio = document.getElementById("radial");
+
+    $('input[type="radio"]').on("click", function() {
+      var typer = $( "input:checked" ).val();
+      if(typer == "reRender"){
+          renderer = reRender;
+      }else{
+          renderer = spiralRender;
+      }
+
+      renderer();
+    });
+
+
+    var solarSlider = document.getElementById("solarRange");
+    var solarOutput = document.getElementById("sWeight");
+    var solButton = document.getElementById("solarButton");
+    solarOutput.innerHTML = parseFloat(solarSlider.value).toFixed(2);
+    
+
+    $("#solarRange").on('mousedown', function(event) {
+      solarSlider.oninput = function() {
+      solarOutput.innerHTML = parseFloat(this.value).toFixed(2);
+        }
+    });
+    $("#solarRange").on('mouseup', function(event) {
+        slideParameters.solarWeight = parseFloat(this.value).toFixed(2);
+        renderer();
+    });
+
+    var hydroSlider = document.getElementById("hydroRange");
+    var hydroOutput = document.getElementById("hWeight");
+    hydroOutput.innerHTML = parseFloat(hydroSlider.value).toFixed(2);
+    
+    $("#hydroRange").on('mousedown', function(event) {
+      hydroSlider.oninput = function() {
+      hydroOutput.innerHTML = parseFloat(this.value).toFixed(2);
+        }
+    });
+    $("#hydroRange").on('mouseup', function(event) {
+        slideParameters.hydroTight = parseFloat(this.value).toFixed(2);
+        renderer();
+    });
+
+    var bioSlider = document.getElementById("bioRange");
+    var bioOutput = document.getElementById("bWeight");
+    bioOutput.innerHTML = parseFloat(bioSlider.value).toFixed(2);
+    
+    $("#bioRange").on('mousedown', function(event) {
+      bioSlider.oninput = function() {
+      bioOutput.innerHTML = parseFloat(this.value).toFixed(2);
+        }
+    });
+    $("#bioRange").on('mouseup', function(event) {
+        slideParameters.bioWeight = parseFloat(this.value).toFixed(2);
+        renderer();
+    });
+
+    var windSlider = document.getElementById("windRange");
+    var windOutput = document.getElementById("wWeight");
+    windOutput.innerHTML = parseFloat(windSlider.value).toFixed(2);
+    
+    $("#windRange").on('mousedown', function(event) {
+      windSlider.oninput = function() {
+      windOutput.innerHTML = parseFloat(this.value).toFixed(2);
+        }
+    });
+    $("#windRange").on('mouseup', function(event) {
+        slideParameters.windWeight = parseFloat(this.value).toFixed(2);
+        renderer();
+    });
+
+    var fossilSlider = document.getElementById("fossilRange");
+    var fossilOutput = document.getElementById("fWeight");
+    fossilOutput.innerHTML = parseFloat(fossilSlider.value).toFixed(2);
+    
+    $("#fossilRange").on('mousedown', function(event) {
+      fossilSlider.oninput = function() {
+      fossilOutput.innerHTML = parseFloat(this.value).toFixed(2);
+        }
+    });
+    $("#fossilRange").on('mouseup', function(event) {
+        slideParameters.fossilWeight = parseFloat(this.value).toFixed(2);
+        renderer();
+    });
+
+    $(document).ready(function(){
+    $("#solButton").on("click",function(){
+        solarOutput.innerHTML = parseFloat("1.00").toFixed(2);
+        slideParameters.solarWeight = parseFloat("1.00").toFixed(2);
+        console.log(slideParameters.solarWeight);
+    })});
+
+    </script>
+
+
+</body></html>
